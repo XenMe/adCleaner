@@ -15,7 +15,7 @@ const srv = http.createServer((req, res) => {
     //extract domain
     var dIndex = url.indexOf('/',1);
     var domain = url.substring(1,dIndex);
-    console.log(timestamp()+'  ==>domain='+domain);
+    console.log('**domain='+domain);
 
     //fix header: host field
     headers['host'] = domain;
@@ -26,7 +26,7 @@ const srv = http.createServer((req, res) => {
             Youku(url, headers, res);
             break;
         default:
-            console.log('--->Unknown domain:' + domain);
+            console.log('--Unknown domain:' + domain);
     }
 
     //res.statusCode = 200;
@@ -40,7 +40,7 @@ srv.listen(8123,()=> {
 function Youku(url, headers, res)
 {
     url = 'http:/'+url;
-    console.log('Youku: ==> '+ url);
+    console.log('Youku: '+ url);
 
     http.get(url, (result) => {
         res.statusCode = result.statusCode;
@@ -64,15 +64,12 @@ function Youku(url, headers, res)
                     console.log('YouKu: Ad removed.');
                 }
                 res.end(JSON.stringify(parsedJson));
-                console.log('YouKu: <== completed.');
+                console.log('YouKu: completed.');
 
             }catch (e) {
-                console.log('--->YouKu, JsonParse: '+ e.message);
+                res.end('parseJson error');
+                console.log('--YouKu, JsonParse: '+ e.message);
             }
         });
     });
-}
-
-function timestamp() {
-    return (new Date()).toLocaleString();
 }

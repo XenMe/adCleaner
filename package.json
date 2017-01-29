@@ -1,0 +1,10 @@
+{
+  "name": "AdCleaner",
+  "version": "0.0.1",
+  "description": "Work with Surge to remove video apps Ads",
+  "author": "Froyo Yao <froyo@xenme.com>",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  }
+}

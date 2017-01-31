@@ -15,13 +15,11 @@ srv.on('request',(req, res) => {
 
     let url = req.url;
     let headers = req.headers;
-    console.log(url);
-    console.log(headers);
 
     //extract domain
     let dIndex = url.indexOf('/', 1);
     let domain = url.substring(1, dIndex);
-    console.log('**domain=' + domain);
+    console.log('REQUEST: domain=' + domain);
 
     //fix header: host field
     headers['host'] = domain;
@@ -32,7 +30,9 @@ srv.on('request',(req, res) => {
             Youku(url, headers, res);
             break;
         default:
-            console.log('--Unknown domain:' + domain);
+            console.log('REQUEST: unknown_domain=',domain);
+            console.log('Debug_URL=',url);
+            console.log('Debug_header=',headers);
             pass(url, headers, res);
     }
 });
@@ -44,7 +44,7 @@ srv.on('connect',(req, cs, head)=> {
         '\r\n');
 
     //reset
-    console.log('CONNECT: reset');
+    console.log('CONNECT: reset t7z.cupid.iqiyi.com');
     cs.destroy();
 
 });
@@ -52,7 +52,7 @@ srv.on('connect',(req, cs, head)=> {
 function Youku(url, headers, res)
 {
     url = 'http:/'+url;
-    console.log('Youku: '+ url);
+    //console.log('Youku: '+ url);
 
     http.get(url, (result) => {
         res.statusCode = result.statusCode;

@@ -4,18 +4,24 @@
 'use strict';
 
 const http = require('http');
+const srv = http.createServer();
 
-const srv = http.createServer((req, res) => {
+srv.listen(8111,()=> {
+    console.log('AdCleaner started...');
+});
 
-    var url = req.url;
-    var headers = req.headers;
-    //console.log(url);
-    //console.log(headers);
+//Youku
+srv.on('request',(req, res) => {
+
+    let url = req.url;
+    let headers = req.headers;
+    console.log(url);
+    console.log(headers);
 
     //extract domain
-    var dIndex = url.indexOf('/',1);
-    var domain = url.substring(1,dIndex);
-    console.log('**domain='+domain);
+    let dIndex = url.indexOf('/', 1);
+    let domain = url.substring(1, dIndex);
+    console.log('**domain=' + domain);
 
     //fix header: host field
     headers['host'] = domain;
@@ -27,14 +33,20 @@ const srv = http.createServer((req, res) => {
             break;
         default:
             console.log('--Unknown domain:' + domain);
+            pass(url, headers, res);
     }
-
-    //res.statusCode = 200;
-    //res.end('adCleaner responder...');
 });
 
-srv.listen(8123,()=> {
-    console.log('AdCleaner started...');
+//iqiyi
+srv.on('connect',(req, cs, head)=> {
+    cs.write('HTTP/1.1 200 Connection Established\r\n' +
+        'Proxy-agent: AdCleaner\r\n' +
+        '\r\n');
+
+    //reset
+    console.log('CONNECT: reset');
+    cs.destroy();
+
 });
 
 function Youku(url, headers, res)
@@ -54,7 +66,7 @@ function Youku(url, headers, res)
         let rawData = '';
         result.on('data',(chunk) => rawData += chunk);
         result.on('end',() => {
-           //remove ad
+            //remove ad
             try {
                 let parsedJson = JSON.parse(rawData);
                 //console.log(parsedJson);
@@ -64,12 +76,24 @@ function Youku(url, headers, res)
                     console.log('YouKu: Ad removed.');
                 }
                 res.end(JSON.stringify(parsedJson));
-                console.log('YouKu: completed.');
 
             }catch (e) {
                 res.end('parseJson error');
                 console.log('--YouKu, JsonParse: '+ e.message);
             }
+        });
+    });
+}
+
+function pass(url, headers, res) {
+    http.get(url, (result) => {
+        res.statusCode = result.statusCode;
+        res.headers = result.headers;
+
+        let rawData = '';
+        result.on('data', (chunk) => rawData += chunk);
+        result.on('end', () => {
+            res.end(rawData);
         });
     });
 }

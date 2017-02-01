@@ -78,8 +78,9 @@ function Youku(url, headers, res)
                 res.end(JSON.stringify(parsedJson));
 
             }catch (e) {
-                res.end('parseJson error');
                 console.log('--YouKu, JsonParse: '+ e.message);
+            }finally {
+                res.end(rawData);
             }
         });
     });

@@ -21,7 +21,6 @@ srv.on('request',(req, res) => {
         case 'i-play.mobile.youku.com':
             http.get(req.url,(sres)=>{
                 res.statusCode = sres.statusCode;
-                console.log(sres.statusCode);
                 res.headers = sres.headers;
 
                 let rawResData = '';

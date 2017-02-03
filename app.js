@@ -4,6 +4,7 @@
 'use strict';
 
 const http = require('http');
+const url = require('url');
 const srv = http.createServer();
 
 srv.listen(8123,()=> {
@@ -13,27 +14,34 @@ srv.listen(8123,()=> {
 //Youku
 srv.on('request',(req, res) => {
 
-    let url = req.url;
-    let headers = req.headers;
+    let reqUrl = url.parse(req.url);
+    console.log('REQUEST: hostname=' + reqUrl.hostname);
 
-    //extract domain
-    let dIndex = url.indexOf('/', 1);
-    let domain = url.substring(1, dIndex);
-    console.log('REQUEST: domain=' + domain);
-
-    //fix header: host field
-    headers['host'] = domain;
-    //console.log(headers);
-
-    switch (domain) {
+    switch (reqUrl.hostname) {
         case 'i-play.mobile.youku.com':
-            Youku(url, headers, res);
+            http.get(req.url,(sres)=>{
+                res.statusCode = sres.statusCode;
+                console.log(sres.statusCode);
+                res.headers = sres.headers;
+
+                let rawResData = '';
+                sres.on('data',(chunk) => rawResData += chunk);
+                sres.on('end',()=>{
+                    try{
+                        let json = JSON.parse(rawResData);
+                        delete json['ad'];
+                        res.end(JSON.stringify(json));
+                    } finally {
+                        res.end(rawResData);
+                    }
+                });
+            });
             break;
         default:
-            console.log('REQUEST: unknown_domain=',domain);
-            console.log('Debug_URL=',url);
-            console.log('Debug_header=',headers);
-            pass(url, headers, res);
+            console.log('REQUEST: **unknown=',reqUrl.hostname);
+            //reset
+            res.statusCode = 404;
+            res.end();
     }
 });
 
@@ -46,55 +54,8 @@ srv.on('connect',(req, cs, head)=> {
     //reset
     console.log('CONNECT: reset t7z.cupid.iqiyi.com');
     cs.destroy();
-
 });
 
-function Youku(url, headers, res)
-{
-    url = 'http:/'+url;
-    //console.log('Youku: '+ url);
-
-    http.get(url, (result) => {
-        res.statusCode = result.statusCode;
-        res.headers = result.headers;
-
-        if(result.statusCode !== 200){
-            console.log(result.statusCode);
-            result.resume();
-            return;
-        }
-        let rawData = '';
-        result.on('data',(chunk) => rawData += chunk);
-        result.on('end',() => {
-            //remove ad
-            try {
-                let parsedJson = JSON.parse(rawData);
-                //console.log(parsedJson);
-                if(parsedJson['ad'] !== undefined)
-                {
-                    delete parsedJson['ad'];
-                    console.log('YouKu: Ad removed.');
-                }
-                res.end(JSON.stringify(parsedJson));
-
-            }catch (e) {
-                console.log('--YouKu, JsonParse: '+ e.message);
-            }finally {
-                res.end(rawData);
-            }
-        });
-    });
-}
-
-function pass(url, headers, res) {
-    http.get(url, (result) => {
-        res.statusCode = result.statusCode;
-        res.headers = result.headers;
-
-        let rawData = '';
-        result.on('data', (chunk) => rawData += chunk);
-        result.on('end', () => {
-            res.end(rawData);
-        });
-    });
-}
+srv.on('error',(e)=>{
+    console.log(e);
+});

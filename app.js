@@ -51,7 +51,8 @@ srv.on('connect',(req, cs, head)=> {
         '\r\n');
 
     //reset
-    console.log('CONNECT: reset t7z.cupid.iqiyi.com');
+    let rurl = url.parse(`http://${req.url}`);
+    console.log(`CONNECT: ${rurl.hostname}:${rurl.port}`);
     cs.destroy();
 });
 

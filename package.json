@@ -1,10 +1,25 @@
 {
-  "name": "AdCleaner",
+  "name": "adcleaner",
   "version": "0.0.1",
-  "description": "Work with Surge to remove video apps Ads",
+  "description": "Ad Remover for video site, designed to work with Surge iOS",
   "author": "Froyo Yao <froyo@xenme.com>",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
-  }
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XenMe/adCleaner.git"
+  },
+  "keywords": [
+    "Ads",
+    "Cleaner"
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/XenMe/adCleaner/issues"
+  },
+  "homepage": "https://github.com/XenMe/adCleaner#readme"
 }

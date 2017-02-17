@@ -13,4 +13,4 @@ WORKDIR /usr/src/app
 RUN curl -SLO https://raw.githubusercontent.com/XenMe/adCleaner/master/app.js
 
 EXPOSE $PORT
-CMD node app.js
+CMD [ "npm", "start"]

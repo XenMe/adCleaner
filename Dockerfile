@@ -1,6 +1,7 @@
-FROM node:boron
-
+FROM alpine
 MAINTAINER Froyo Yao <froyo@xenme.com>
+
+RUN apk --no-cache add curl nodejs
 
 ENV PORT 8123
 
@@ -9,7 +10,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 #fetch app.js
-RUN wget https://raw.githubusercontent.com/XenMe/adCleaner/master/app.js
+RUN curl -SLO https://raw.githubusercontent.com/XenMe/adCleaner/master/app.js
 
 EXPOSE $PORT
 CMD node app.js

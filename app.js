@@ -7,41 +7,41 @@ const http = require('http');
 const url = require('url');
 const srv = http.createServer();
 
-srv.listen(8123,()=> {
-    console.log('AdCleaner started...');
+const https = require('https');
+const fs = require('fs');
+
+const options = {
+    key: fs.readFileSync('youku.com.key'),
+    cert: fs.readFileSync('youku.com.cer')
+};
+
+const httpsSrv = https.createServer(options);
+httpsSrv.on('request',(creq, cres) => {
+    //send request to server
+    let url = 'https://ups.youku.com'+creq.url;
+    console.log(url);
+
+    let rawResData = '';
+    https.get(url, (res) => {
+        res.on('data',(chunk) => rawResData += chunk);
+        res.on('end',()=>{
+            //parse json
+            try{
+                let json = JSON.parse(rawResData);
+                delete json['data']['ad'];
+                cres.end(JSON.stringify(json));
+            } finally {
+                cres.end(rawResData);
+            }
+        });
+    });
 });
 
-//Youku
-srv.on('request',(req, res) => {
+httpsSrv.listen(8124);
+console.log('https server started (ups.youku.com)...');
 
-    let reqUrl = url.parse(req.url);
-    console.log('REQUEST: hostname=' + reqUrl.hostname);
-
-    switch (reqUrl.hostname) {
-        case 'i-play.mobile.youku.com':
-            http.get(req.url,(sres)=>{
-                res.statusCode = sres.statusCode;
-                res.headers = sres.headers;
-
-                let rawResData = '';
-                sres.on('data',(chunk) => rawResData += chunk);
-                sres.on('end',()=>{
-                    try{
-                        let json = JSON.parse(rawResData);
-                        delete json['ad'];
-                        res.end(JSON.stringify(json));
-                    } finally {
-                        res.end(rawResData);
-                    }
-                });
-            });
-            break;
-        default:
-            console.log('REQUEST: **unknown=',reqUrl.hostname);
-            //reset
-            res.statusCode = 404;
-            res.end();
-    }
+srv.listen(8123,()=> {
+    console.log('http server started (iqiyi)...');
 });
 
 //iqiyi

@@ -26,17 +26,17 @@ httpsSrv.on('request',(creq, cres) => {
         res.on('data',(chunk) => rawResData += chunk);
         res.on('end',()=>{
             //parse json
-			if(creq.url.startsWith("/ups/get.json")) {
-				try{
-					let json = JSON.parse(rawResData);
-					delete json['data']['ad'];
-					cres.end(JSON.stringify(json));
-				} finally {
-					cres.end(rawResData);
-				}
-			} else {
-				cres.end(rawResData);
-			}
+            if(creq.url.startsWith("/ups/get.json")) {
+                try{
+                    let json = JSON.parse(rawResData);
+                    delete json['data']['ad'];
+                    cres.end(JSON.stringify(json));
+                } finally {
+                    cres.end(rawResData);
+                }
+            } else {
+                cres.end(rawResData);
+            }
         });
     });
 });

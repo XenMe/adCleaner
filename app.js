@@ -7,45 +7,31 @@ const http = require('http');
 const url = require('url');
 const srv = http.createServer();
 
-const https = require('https');
-const fs = require('fs');
+srv.listen(8123,()=> {
+    console.log('http server started...');
+});
 
-const options = {
-    key: fs.readFileSync('youku.com.key'),
-    cert: fs.readFileSync('youku.com.cer')
-};
-
-const httpsSrv = https.createServer(options);
-httpsSrv.on('request',(creq, cres) => {
+//youku
+srv.on('request',(creq, cres) => {
     //send request to server
-    let url = 'https://ups.youku.com'+creq.url;
+    let host = creq.headers['host'];
+    let url = 'http://ups.youku.com' + creq.url;
     console.log(url);
-	
+
     let rawResData = '';
-    https.get(url, (res) => {
+    http.get(url, (res) => {
         res.on('data',(chunk) => rawResData += chunk);
         res.on('end',()=>{
             //parse json
-            if(creq.url.startsWith("/ups/get.json")) {
-                try{
-                    let json = JSON.parse(rawResData);
-                    delete json['data']['ad'];
-                    cres.end(JSON.stringify(json));
-                } finally {
-                    cres.end(rawResData);
-                }
-            } else {
+            try{
+                let json = JSON.parse(rawResData);
+                delete json['data']['ad'];
+                cres.end(JSON.stringify(json));
+            } finally {
                 cres.end(rawResData);
             }
         });
     });
-});
-
-httpsSrv.listen(8124);
-console.log('https server started (ups.youku.com)...');
-
-srv.listen(8123,()=> {
-    console.log('http server started (iqiyi)...');
 });
 
 //iqiyi

@@ -10,8 +10,6 @@ WORKDIR /usr/src/app
 #fetch app.js and package.json
 RUN curl -SLO https://raw.githubusercontent.com/XenMe/adCleaner/master/package.json
 RUN curl -SLO https://raw.githubusercontent.com/XenMe/adCleaner/master/app.js
-RUN curl -SLO https://raw.githubusercontent.com/XenMe/adCleaner/master/youku.com.key
-RUN curl -SLO https://raw.githubusercontent.com/XenMe/adCleaner/master/youku.com.cer
 
-EXPOSE 8123 8124
+EXPOSE 8123
 CMD [ "npm", "start"]

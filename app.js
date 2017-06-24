@@ -20,19 +20,23 @@ httpsSrv.on('request',(creq, cres) => {
     //send request to server
     let url = 'https://ups.youku.com'+creq.url;
     console.log(url);
-
+	
     let rawResData = '';
     https.get(url, (res) => {
         res.on('data',(chunk) => rawResData += chunk);
         res.on('end',()=>{
             //parse json
-            try{
-                let json = JSON.parse(rawResData);
-                delete json['data']['ad'];
-                cres.end(JSON.stringify(json));
-            } finally {
-                cres.end(rawResData);
-            }
+			if(creq.url.startsWith("/ups/get.json")) {
+				try{
+					let json = JSON.parse(rawResData);
+					delete json['data']['ad'];
+					cres.end(JSON.stringify(json));
+				} finally {
+					cres.end(rawResData);
+				}
+			} else {
+				cres.end(rawResData);
+			}
         });
     });
 });
